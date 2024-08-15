@@ -57,4 +57,5 @@ jobs:
           az aks get-credentials --name ay-capstone --resource-group alt-school-capstone
           kubectl apply -f alerting
           kubectl apply -f monitoring
-          kubectl apply -f socks-shop          
+          kubectl apply -f socks-shop
+          kubectl apply -f ingress         

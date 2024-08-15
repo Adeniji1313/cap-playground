@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: alertmanager
+  namespace: monitoring
 spec:
   replicas: 1
   selector:
@@ -16,22 +17,25 @@ spec:
       containers:
       - name: alertmanager
         image: prom/alertmanager:latest
-        env:
-          - name: SLACK_HOOK_URL
-            value: http://localhost:80
-        command: ['/bin/sh', '/etc/alertmanager/configure_secret.sh']
         args:
-          - '-config.file=/etc/alertmanager/config.yml'
-          - '-storage.path=/alertmanager'
+          - "--config.file=/etc/alertmanager/config.yml"
+          - "--storage.path=/alertmanager"
         ports:
         - name: alertmanager
           containerPort: 9093
         volumeMounts:
         - name: config-volume
           mountPath: /etc/alertmanager
+        - name: templates-volume
+          mountPath: /etc/alertmanager-templates
+        - name: alertmanager
+          mountPath: /alertmanager
       volumes:
       - name: config-volume
         configMap:
-          name: alertmanager
-      nodeSelector:
-        beta.kubernetes.io/os: linux
+          name: alertmanager-config
+      - name: templates-volume
+        configMap:
+          name: alertmanager-templates
+      - name: alertmanager
+        emptyDir: {}

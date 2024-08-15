@@ -46,6 +46,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install azure-cli
 
+      - name: Authenticate Azure
+        run: az login --service-principal -u ${{ secrets.CLIENT_ID }} -p ${{ secrets.CLIENT_SECRET }} --tenant ${{ secrets.TENANT_ID }}
+
       - name: Apply terraform
         env:
           TF_VAR_ARM_CLIENT_ID:  ${{ secrets.TF_VAR_CLIENT_ID }}

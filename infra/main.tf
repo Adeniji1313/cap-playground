@@ -20,7 +20,7 @@ resource "azurerm_kubernetes_cluster" "ay_capstone_cluster" {
         max_pods                     = 110
         min_count                    = 1
         name                         = "nodepool"
-        node_count                   = 1
+        node_count                   = 2
         os_disk_size_gb              = 100
         vm_size                      = "Standard_D2s_v3"
         temporary_name_for_rotation  = "temporary"

@@ -5,24 +5,23 @@ on:
     branches:
       - main
 
+env:
+  ARM_CLIENT_ID: "${{ secrets.TF_VAR_CLIENT_ID }}"
+  ARM_SUBSCRIPTION_ID: "${{ secrets.TF_VAR_SUBSCRIPTION_ID }}"
+  ARM_TENANT_ID: "${{ secrets.TF_VAR_TENANT_ID }}"
+  ARM_CLIENT_SECRET: "${{ secrets.TF_VAR_CLIENT_SECRET }}"
+
+
 jobs:
   Capstone:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install Terraform
-        run: |
-          sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
-          wget -O- https://apt.releases.hashicorp.com/gpg | \
-          gpg --dearmor | \
-          sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
-          echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
-          https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
-          sudo tee /etc/apt/sources.list.d/hashicorp.list
-          sudo apt update
-          sudo apt-get install terraform
-          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-          sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
 
       - name: Install Kubectl
         run: |
@@ -46,15 +45,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install azure-cli
 
-      - name: Authenticate Azure
-        run: az login --service-principal -u ${{ secrets.TF_VAR_CLIENT_ID }} -p ${{ secrets.TF_VAR_CLIENT_SECRET }} --tenant ${{ secrets.TF_VAR_TENANT_ID }}
-
       - name: Apply terraform
-        env:
-          TF_VAR_ARM_CLIENT_ID:  ${{ secrets.TF_VAR_CLIENT_ID }}
-          TF_VAR_ARM_CLIENT_SECRET: ${{ secrets.TF_VAR_CLIENT_SECRET }}
-          TF_VAR_ARM_TENANT_ID: ${{ secrets.TF_VAR_TENANT_ID }}
-          TF_VAR_ARM_SUBSCRIPTION_ID: ${{ secrets.TF_VAR_SUBSCRIPTION_ID }}
         run: |
           terraform init
           terraform apply --auto-approve
@@ -62,7 +53,7 @@ jobs:
 
       - name: Apply Manifests to cluster
         run: |
-          az login --service-principal -u ${{ secrets.CLIENT_ID }} -p ${{ secrets.CLIENT_SECRET }} --tenant ${{ secrets.TENANT_ID }}
+          az login --service-principal -u ${{ secrets.TF_VAR_CLIENT_ID }} -p ${{ secrets.TF_VAR_CLIENT_SECRET }} --tenant ${{ secrets.TF_VAR_TENANT_ID }}
           az aks get-credentials --name ay-capstone --resource-group alt-school-capstone
           kubectl apply -f alerting
           kubectl apply -f monitoring

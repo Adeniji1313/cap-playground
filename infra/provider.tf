@@ -9,7 +9,7 @@ terraform {
     resource_group_name  = "azure-storage"  
     storage_account_name = "ayterraformstate"                      
     container_name       = "ayterraformstate"                       
-    key                  = "capstone.terraform.tfstate"        
+    key                  = "capstone.terraform.tfstate"     
   }
 }
 

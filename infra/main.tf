@@ -16,7 +16,7 @@ resource "azurerm_kubernetes_cluster" "ay_capstone_cluster" {
 
     default_node_pool {
         enable_auto_scaling          = true
-        max_count                    = 1
+        max_count                    = 2
         max_pods                     = 110
         min_count                    = 1
         name                         = "nodepool"
